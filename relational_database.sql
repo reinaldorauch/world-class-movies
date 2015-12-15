@@ -1,6 +1,26 @@
-CREATE DATABASE wcf_example CHARSET utf8 COLLATION utf8_unicode_cs;
+CREATE DATABASE wcm_example CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
-USE wcf_example;
+USE wcm_example;
+
+CREATE TABLE country (
+  country_id INTEGER PRIMARY KEY,
+  country_name VARCHAR(50),
+  ISO3166_country_code CHAR(2)
+) ENGINE=InnoDB;
+
+CREATE TABLE region (
+  region_id INTEGER PRIMARY KEY,
+  region_name VARCHAR(35),
+  country_id INTEGER,
+  ISO3166_region_code CHAR(2),
+  FOREIGN KEY (country_id) REFERENCES country (country_id)
+) ENGINE=InnoDB;
+
+CREATE TABLE lookup_value (
+  lookup_value_id INTEGER PRIMARY KEY,
+  lookup_type_id INTEGER,
+  lookup_text VARCHAR(50)
+) ENGINE=InnoDB;
 
 CREATE TABLE director (
   director_id INTEGER PRIMARY KEY,
@@ -29,8 +49,8 @@ CREATE TABLE employee (
   address2 VARCHAR(50),
   postal_code VARCHAR(10),
   email_address VARCHAR(64),
-  FOREIGN KEY region_id REFERENCES region (region_id),
-  FOREIGN KEY gender_lookup REFERENCES lookup_value (lookup_value_id)
+  FOREIGN KEY (region_id) REFERENCES region (region_id),
+  FOREIGN KEY (gender_lookup) REFERENCES lookup_value (lookup_value_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE distributor (
@@ -43,7 +63,7 @@ CREATE TABLE distributor (
   postal_code VARCHAR(10),
   email_address VARCHAR(64),
   telephone_number CHAR(12),
-  FOREIGN KEY region_id REFERENCES region (region_id)
+  FOREIGN KEY (region_id) REFERENCES region (region_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE purchase_order (
@@ -53,9 +73,9 @@ CREATE TABLE purchase_order (
   order_date DATE,
   confirmation_date DATE,
   status_lookup INTEGER,
-  FOREIGN KEY employee_id REFERENCES employee (employee_id),
-  FOREIGN KEY distributor_id REFERENCES distributor (distributor_id)
-  FOREIGN KEY status_lookup REFERENCES lookup_value (lookup_value_id)
+  FOREIGN KEY (employee_id) REFERENCES employee (employee_id),
+  FOREIGN KEY (distributor_id) REFERENCES distributor (distributor_id),
+  FOREIGN KEY (status_lookup) REFERENCES lookup_value (lookup_value_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE job_description (
@@ -86,16 +106,16 @@ CREATE TABLE dvd_release_director (
   dvd_release_director_id INTEGER PRIMARY KEY,
   director_id INTEGER NOT NULL,
   director_release_id INTEGER NOT NULL,
-  FOREIGN KEY director_id REFERENCES director (director_id),
-  FOREIGN KEY director_release_id REFERENCES dvd_release (dvd_release_id)
+  FOREIGN KEY (director_id) REFERENCES director (director_id),
+  FOREIGN KEY (director_release_id) REFERENCES dvd_release (dvd_release_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dvd_release_actor (
   dvd_release_actor_id INTEGER PRIMARY KEY,
   actor_id INTEGER NOT NULL,
-  dvd_release_id INTEGER NOT NULL
-  FOREIGN KEY actor_id REFERENCES actor (actor_id).
-  FOREIGN KEY dvd_release_id REFERENCES dvd_release (dvd_release_id)
+  dvd_release_id INTEGER NOT NULL,
+  FOREIGN KEY (actor_id) REFERENCES actor (actor_id),
+  FOREIGN KEY (dvd_release_id) REFERENCES dvd_release (dvd_release_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE website (
@@ -106,7 +126,7 @@ CREATE TABLE website (
 
 CREATE TABLE customer (
   customer_id INTEGER PRIMARY KEY,
-  website_id INTEGER PRIMARY KEY,
+  website_id INTEGER,
   first_name VARCHAR(30),
   middle_initial CHAR(1),
   last_name VARCHAR(30),
@@ -125,9 +145,9 @@ CREATE TABLE customer (
   date_registered DATE,
   date_unregistered DATE,
   `timestamp_changed` TIMESTAMP,
-  FOREIGN KEY website_id REFERENCES website (website_id),
-  FOREIGN KEY region_id REFERENCES region (region_id),
-  FOREIGN KEY gender_lookup REFERENCES lookup_value (lookup_value_id)
+  FOREIGN KEY (website_id) REFERENCES website (website_id),
+  FOREIGN KEY (region_id) REFERENCES region (region_id),
+  FOREIGN KEY (gender_lookup) REFERENCES lookup_value (lookup_value_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE promotion (
@@ -137,15 +157,15 @@ CREATE TABLE promotion (
   promotion_type_lookup INTEGER,
   promotion_start_date DATE,
   promotion_end_date DATE,
-  FOREIGN KEY website_id REFERENCES website (website_id),
-  FOREIGN KEY promotion_type_lookup REFERENCES lookup_value (lookup_value_id)
+  FOREIGN KEY (website_id) REFERENCES website (website_id),
+  FOREIGN KEY (promotion_type_lookup) REFERENCES lookup_value (lookup_value_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE customer_order (
   customer_order_id INTEGER PRIMARY KEY,
-  customer_id INTEGER NOT NULL,
-  promotion_id INTEGER NOT NULL,
-  shipping_region_id INTEGER NOT NULL,
+  customer_id INTEGER,
+  promotion_id INTEGER,
+  shipping_region_id INTEGER,
   customer_first_name VARCHAR(30),
   customer_middle_initial CHAR(1),
   customer_last_name VARCHAR(30),
@@ -157,9 +177,9 @@ CREATE TABLE customer_order (
   shipping_postal_code VARCHAR(10),
   order_timestamp TIMESTAMP,
   status_lookup INTEGER,
-  FOREIGN KEY customer_id REFERENCES customer (customer_id),
-  FOREIGN KEY promotion_id REFERENCES promotion (promotion_id),
-  FOREIGN KEY status_lookup REFERENCES lookup_value (lookup_value_id)
+  FOREIGN KEY (customer_id) REFERENCES customer (customer_id),
+  FOREIGN KEY (promotion_id) REFERENCES promotion (promotion_id),
+  FOREIGN KEY (status_lookup) REFERENCES lookup_value (lookup_value_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE warehouse (
@@ -171,7 +191,7 @@ CREATE TABLE warehouse (
   postal_code VARCHAR(10),
   email_address VARCHAR(64),
   telephone_number CHAR(12),
-  FOREIGN KEY region_id REFERENCES region (region_id)
+  FOREIGN KEY (region_id) REFERENCES region (region_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE employee_job (
@@ -181,9 +201,9 @@ CREATE TABLE employee_job (
   warehouse_id INTEGER,
   start_date DATE,
   end_date DATE,
-  FOREIGN KEY employee_id REFERENCES employee (employee_id),
-  FOREIGN KEY job_description_id REFERENCES job_description (job_description_id),
-  FOREIGN KEY warehouse_id REFERENCES warehouse (warehouse_id)
+  FOREIGN KEY (employee_id) REFERENCES employee (employee_id),
+  FOREIGN KEY (job_description_id) REFERENCES job_description (job_description_id),
+  FOREIGN KEY (warehouse_id) REFERENCES warehouse (warehouse_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE purchase_order_line (
@@ -191,16 +211,16 @@ CREATE TABLE purchase_order_line (
   purchase_order_id INTEGER,
   warehouse_id INTEGER,
   dvd_release_id INTEGER,
-  line_number: INTEGER,
+  line_number INTEGER,
   quantity INTEGER,
   price DECIMAL(10,2),
   shipping_cost DECIMAL(10,2),
   shipping_date DATE,
   delivery_due_date DATE,
   delivery_date DATE,
-  FOREIGN KEY purchase_order_id REFERENCES purchase_order (purchase_order_id),
-  FOREIGN KEY warehouse_id REFERENCES warehouse (warehouse_id),
-  FOREIGN KEY dvd_release_id REFERENCES dvd_release (dvd_release_id)
+  FOREIGN KEY (purchase_order_id) REFERENCES purchase_order (purchase_order_id),
+  FOREIGN KEY (warehouse_id) REFERENCES warehouse (warehouse_id),
+  FOREIGN KEY (dvd_release_id) REFERENCES dvd_release (dvd_release_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dvd (
@@ -209,8 +229,8 @@ CREATE TABLE dvd (
   purchase_order_line_id INTEGER,
   status_lookup SMALLINT,
   dvd_barcode INTEGER,
-  FOREIGN KEY dvd_release_id REFERENCES dvd_release (dvd_release_id),
-  FOREIGN KEY purchase_order_line_id REFERENCES purchase_order_line (purchase_order_line_id)
+  FOREIGN KEY (dvd_release_id) REFERENCES dvd_release (dvd_release_id),
+  FOREIGN KEY (purchase_order_line_id) REFERENCES purchase_order_line (purchase_order_line_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE inventory (
@@ -219,12 +239,12 @@ CREATE TABLE inventory (
   dvd_id INTEGER,
   customer_order_id INTEGER,
   employee_id INTEGER,
-  `timestamp`: TIMESTAMP,
-  status_lookup: INTEGER,
-  FOREIGN KEY warehouse_id REFERENCES warehouse (warehouse_id),
-  FOREIGN KEY dvd_id REFERENCES dvd (dvd_id),
-  FOREIGN KEY customer_order_id REFERENCES customer_order (customer_order_id),
-  FOREIGN KEY employee_id REFERENCES employee (employee_id),
+  `timestamp` TIMESTAMP,
+  status_lookup INTEGER,
+  FOREIGN KEY (warehouse_id) REFERENCES warehouse (warehouse_id),
+  FOREIGN KEY (dvd_id) REFERENCES dvd (dvd_id),
+  FOREIGN KEY (customer_order_id) REFERENCES customer_order (customer_order_id),
+  FOREIGN KEY (employee_id) REFERENCES employee (employee_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE promoted_dvd_release (
@@ -234,8 +254,8 @@ CREATE TABLE promoted_dvd_release (
   promotion_rental_price DECIMAL(4,2),
   promotion_rental_duration INTEGER,
   promotion_purchase_price DECIMAL(4,2),
-  FOREIGN KEY promotion_id REFERENCES promotion (promotion_id),
-  FOREIGN KEY dvd_release_id REFERENCES dvd_release (dvd_release_id)
+  FOREIGN KEY (promotion_id) REFERENCES promotion (promotion_id),
+  FOREIGN KEY (dvd_release_id) REFERENCES dvd_release (dvd_release_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE customer_order_line (
@@ -250,26 +270,6 @@ CREATE TABLE customer_order_line (
   delivery_date DATE,
   delivery_due_date DATE,
   return_due_date DATE,
-  FOREIGN KEY customer_order_id REFERENCES customer_order (customer_order_id),
-  FOREIGN KEY dvd_release_id REFERENCES dvd_release (dvd_release_id)
+  FOREIGN KEY (customer_order_id) REFERENCES customer_order (customer_order_id),
+  FOREIGN KEY (dvd_release_id) REFERENCES dvd_release (dvd_release_id)
 ) ENGINE= InnoDB;
-
-CREATE TABLE country (
-  country_id INTEGER PRIMARY KEY,
-  country_name VARCHAR(50),
-  ISO3166_country_code CHAR(2)
-) ENGINE=InnoDB;
-
-CREATE TABLE region (
-  region_id INTEGER PRIMARY KEY,
-  region_name VARCHAR(35),
-  country_id INTEGER,
-  ISO3166_region_code CHAR(2),
-  FOREIGN KEY country_id REFERENCES country (country_id)
-) ENGINE=InnoDB;
-
-CREATE TABLE lookup_value (
-  lookup_value_id INTEGER PRIMARY KEY,
-  lookup_type_id INTEGER,
-  lookup_text VARCHAR(50)
-) ENGINE=InnoDB;
